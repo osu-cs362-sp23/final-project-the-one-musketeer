@@ -1,8 +1,8 @@
 name: Deploy to GH Pages
-on: [ push ]
-  # push:
-  #   branches:
-  #   - main
+on:
+  push:
+    branches:
+    - main
 jobs:
   build-and-test:
     uses: ./.github/workflows/build-and-test.yml
