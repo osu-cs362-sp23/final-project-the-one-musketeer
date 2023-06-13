@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "CS 362 Final Project",
   "scripts": {
-    "build": "./build.sh",
-    "web:build": "webpack",
+    "build": "webpack",
     "start": "webpack serve --open",
     "cy:open": "cypress open",
     "cy:run": "cypress run",
