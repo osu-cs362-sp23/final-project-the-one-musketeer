@@ -6,20 +6,28 @@
 name: Create github zip release
 on: [ pull_request ]
 jobs:
+  build-and-test:
+    uses: ./.github/workflows/build-and-test.yml
+    with:
+      upload-pages-artifact: true
   create-release:
     runs-on: ubuntu-latest
+    needs: build-and-test
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.SECRET_NAME }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: |
-            Release created automatically with github actions
-          draft: false
-          prerelease: false
+    - name: Download zip
+      uses: actions/download-artifact@v3
+      with:
+        name: static-site
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.run_number }}
+        release_name: Release ${{ github.run_number }}
+        body: |
+          Release created automatically with github actions
+        draft: false
+        prerelease: false
