@@ -19,7 +19,7 @@ jobs:
     - name: Download zip
       uses: actions/download-artifact@v3
       with:
-        name: dist
+        path: ./dist
     - name: Create Release
       uses: actions/create-release@v1
       env:
