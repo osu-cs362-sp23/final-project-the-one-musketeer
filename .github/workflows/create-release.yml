@@ -23,6 +23,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         path: ./dist
+<<<<<<< Updated upstream
     - name: Create Release
       uses: actions/create-release@v1
       env:
@@ -34,3 +35,16 @@ jobs:
           Release created automatically with github actions
         draft: false
         prerelease: false
+=======
+    # - name: Create Release
+    #   uses: actions/create-release@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     tag_name: ${{ github.run_number }}
+    #     release_name: Release ${{ github.run_number }}
+    #     body: |
+    #       Release created automatically with github actions
+    #     draft: false
+    #     prerelease: false
+>>>>>>> Stashed changes
