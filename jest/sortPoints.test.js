@@ -1,12 +1,4 @@
-/**
- * @jest-environment jsdom
- */
-
-
 const sortPoints = require("../src/lib/sortPoints.js")
-
-require("whatwg-fetch")
-require("@testing-library/jest-dom/extend-expect")
 
 test("Sorts an array of length 2", () => {
     input_value = [
@@ -17,7 +9,8 @@ test("Sorts an array of length 2", () => {
         {x:-1,y:-4},
         {x:2,y:3}
     ]
-    expect(sortPoints(input_value)).toStrictEqual(expected_value)
+    sorted = sortPoints(input_value)
+    expect(sorted).toStrictEqual(expected_value)
 });
 
 test("Sorts an array of length 3", () => {
@@ -31,48 +24,62 @@ test("Sorts an array of length 3", () => {
         {x:-1,y:-4},
         {x:2,y:3}
     ]
-    expect(sortPoints(input_value)).toStrictEqual(expected_value)
+    sorted = sortPoints(input_value)
+    expect(sorted).toStrictEqual(expected_value)
 });
-/*
-const fs = require("fs")
 
-function initDOMFromFiles(htmlPath, jsPath) {
-    const html = fs.readFileSync(htmlPath, 'utf8')
-    document.open()
-    document.write(html)
-    document.close()
-    jest.isolateModules(function () {
-        require(jsPath)
-    })
-}
+test("Sorts an array with data points in all 4 quadrants", () => {
+    input_value = [
+        {x:5,y:5},
+        {x:-5,y:-5},
+        {x:-5,y:5},
+        {x:5,y:-5}
+    ]
+    expected_value = [
+        {x:-5,y:-5},
+        {x:-5,y:5},
+        {x:5,y:5},
+        {x:5,y:-5}
+    ]
+    sorted = sortPoints(input_value)
+    expect(sorted).toStrictEqual(expected_value)
+});
 
-test('Loads DOM correctly on startup', async function () {
-    initDOMFromFiles(
-        __dirname + "/romanNumerals.html",
-        __dirname + "/romanNumerals.js",
-    )
-    expect(document.body.innerHTML).toBe(
-        `
-        <div class="results">
-            <div class="result">
-                <div id="old-roman-result"></div>
-                "Old" Roman Numeral
-            </div>
-            <div class="result">
-                <div id="modern-roman-result"></div>
-                "Modern" Roman Numeral
-            </div>
-        </div>
-        <form id="arabic-number-form">
-            <label>
-                Arabic number (1-3999)
-                <input type="number" min="1" max="3999" id="arabic-number" name="arabic-number">
-            </label>
-            <button>Convert to "modern" Roman</button>
-        </form>
-    
-
-`
-    )
-})
-*/
+test("Sorts a large data set correctly", () => {
+    input_value = [
+        {x:-10,y:10},
+        {x:2,y:-2},
+        {x:5,y:5},
+        {x:10,y:10},
+        {x:-5,y:5},
+        {x:2,y:2},
+        {x:0,y:0},
+        {x:-10,y:-10},
+        {x:-5,y:2},
+        {x:10,y:-10},
+        {x:99999,y:0},
+        {x:-2,y:-2},
+        {x:5,y:-5},
+        {x:-5,y:-5},
+        {x:0,y:12}
+    ]
+    expected_value = [
+        {x:-10,y:10},
+        {x:-10,y:-10},
+        {x:-5,y:5},
+        {x:-5,y:2},
+        {x:-5,y:-5},
+        {x:-2,y:-2},
+        {x:0,y:0},
+        {x:0,y:12},
+        {x:2,y:-2},
+        {x:2,y:2},
+        {x:5,y:5},
+        {x:5,y:-5},
+        {x:10,y:10},
+        {x:10,y:-10},
+        {x:99999,y:0}
+    ]
+    sorted = sortPoints(input_value)
+    expect(sorted).toStrictEqual(expected_value)
+});
