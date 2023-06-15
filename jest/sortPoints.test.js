@@ -7,8 +7,6 @@ const sortPoints = require("../src/lib/sortPoints.js")
 
 require("whatwg-fetch")
 require("@testing-library/jest-dom/extend-expect")
-const domTesting = require("@testing-library/dom")
-const userEvent = require("@testing-library/user-event").default
 
 test("Sorts an array of length 2", () => {
     input_value = [
@@ -16,6 +14,20 @@ test("Sorts an array of length 2", () => {
         {x:-1,y:-4}
     ]
     expected_value = [
+        {x:-1,y:-4},
+        {x:2,y:3}
+    ]
+    expect(sortPoints(input_value)).toStrictEqual(expected_value)
+});
+
+test("Sorts an array of length 3", () => {
+    input_value = [
+        {x:2,y:3},
+        {x:-1,y:-4},
+        {x:-12,y:24}
+    ]
+    expected_value = [
+        {x:-12,y:24},
         {x:-1,y:-4},
         {x:2,y:3}
     ]
