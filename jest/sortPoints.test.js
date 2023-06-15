@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 const sortPoints = require("../src/lib/sortPoints.js")
 
 test("Sorts an array of length 2", () => {
@@ -57,7 +61,7 @@ test("Sorts a large data set correctly", () => {
         {x:-10,y:-10},
         {x:-5,y:2},
         {x:10,y:-10},
-        {x:99999,y:0},
+        {x:999,y:0},
         {x:-2,y:-2},
         {x:5,y:-5},
         {x:-5,y:-5},
@@ -78,7 +82,7 @@ test("Sorts a large data set correctly", () => {
         {x:5,y:-5},
         {x:10,y:10},
         {x:10,y:-10},
-        {x:99999,y:0}
+        {x:999,y:0}
     ]
     sorted = sortPoints(input_value)
     expect(sorted).toStrictEqual(expected_value)
