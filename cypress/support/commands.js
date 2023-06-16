@@ -24,3 +24,11 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 require("@testing-library/cypress/add-commands")
+
+Cypress.Commands.add('confirmSameInfo', function () {
+    cy.get("#chart-title-input").should("have.value", "Apples vs. Oranges")
+    cy.get("#x-label-input").should("have.value", "Apples")
+    cy.get("#y-label-input").should("have.value", "Oranges")
+    cy.get(".x-value-input").should("have.value", "4")
+    cy.get(".y-value-input").should("have.value", "5")
+})
