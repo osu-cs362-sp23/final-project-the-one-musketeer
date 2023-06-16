@@ -28,6 +28,11 @@ afterAll(function () {
     server.close()
 })
 
+// Make sure everything is reset after each test
+afterEach(() => {
+    jest.restoreAllMocks()
+})
+
 test("Returns image", function() {
     const chart = generateChartImg(
         "line",
