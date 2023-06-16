@@ -19,6 +19,12 @@ function initDOMFromFiles(htmlPath, jsPath) {
     })
 }
 
+// Make sure everything is reset after each test
+afterEach(() => {
+    jest.restoreAllMocks()
+    window.localStorage.clear()
+})
+
 test('Enter values into X and Y fields, and click the plus button repeatedly', async function () {
     initDOMFromFiles(
         __dirname + "/../src/line/line.html",
@@ -112,7 +118,7 @@ test('Enter values into X and Y fields, and click the plus button repeatedly', a
     expect(yValue[8].value).toBe("")
 })
 
-test('Enter values into X and Y fields, and click the plus button repeatedly', async function () {
+test('Give names to X & Y fields but no data, and generate a chart', async function () {
     initDOMFromFiles(
         __dirname + "/../src/line/line.html",
         __dirname + "/../src/line/line.js",
@@ -134,10 +140,143 @@ test('Enter values into X and Y fields, and click the plus button repeatedly', a
     // Click "Generate chart" button
     await user.click(generateButton)
 
-    // Does the spy detect an alert?
-    expect(alert).toHaveBeenCalled()
-    expect(window.alert).toBeCalledWith("Error: No data specified!")
+    // Does the spy detect the correct alert?
+    expect(spy).toBeCalledWith("Error: No data specified!")
+    expect(spy).not.toBeCalledWith("Error: Must specify a label for both X and Y!")
+})
 
+test('Give data but no names to X & Y fields, and generate a chart', async function () {
+    initDOMFromFiles(
+        __dirname + "/../src/line/line.html",
+        __dirname + "/../src/line/line.js",
+    )
+    
+    var xValue = domTesting.getAllByLabelText(document, "X") // All X input fields
+    var yValue = domTesting.getAllByLabelText(document, "Y") // All Y input fields
+    const plusButton = domTesting.getByText(document, "+") // The + button
+    const generateButton = domTesting.getByText(document, "Generate chart") // The generate chart button
+
+    const user = userEvent.setup()
+
+    // Type into the most recent set of input fields, then click the plus button.
+    await user.type(xValue[0], "1")
+    await user.type(yValue[0], "2")
+
+    await user.click(plusButton)
+
+    // Update xValue and yValue to include the new field that was created by the + button
+    xValue = domTesting.getAllByLabelText(document, "X")
+    yValue = domTesting.getAllByLabelText(document, "Y")
+
+    // Repeat a couple more times
+    await user.type(xValue[1], "3")
+    await user.type(yValue[1], "4")
+
+    await user.click(plusButton)
+
+    xValue = domTesting.getAllByLabelText(document, "X")
+    yValue = domTesting.getAllByLabelText(document, "Y")
+
+    await user.type(xValue[2], "5")
+    await user.type(yValue[2], "6")
+
+    await user.click(plusButton)
+
+    xValue = domTesting.getAllByLabelText(document, "X")
+    yValue = domTesting.getAllByLabelText(document, "Y")
+
+    await user.type(xValue[3], "7")
+    await user.type(yValue[3], "8")
+
+    // Set up a spy
+    const spy = jest.spyOn(window,"alert").mockImplementation(() => {})
+
+    // Click "Generate chart" button
+    await user.click(generateButton)
+
+    // Does the spy detect the correct alert?
+    expect(spy).toBeCalledWith("Error: Must specify a label for both X and Y!")
+    expect(spy).not.toBeCalledWith("Error: No data specified!")
+})
+
+test('Clear chart data button clears all data', async function () {
+    initDOMFromFiles(
+        __dirname + "/../src/line/line.html",
+        __dirname + "/../src/line/line.js",
+    )
+    
+    const chartTitle = domTesting.getByLabelText(document, "Chart title") // Chart title field
+    const xLabel = domTesting.getByLabelText(document, "X label") // X label fields
+    const yLabel = domTesting.getByLabelText(document, "Y label") // Y label fields
+    var xValue = domTesting.getAllByLabelText(document, "X") // All X input fields
+    var yValue = domTesting.getAllByLabelText(document, "Y") // All Y input fields
+    const plusButton = domTesting.getByText(document, "+") // The + button
+    const clearChartButton = domTesting.getByText(document, "Clear chart data") // The generate chart button
+    const chartColorButton = domTesting.getByLabelText(document, "Chart color") // The chart color button
+
+    const user = userEvent.setup()
+
+    // Change the chart color
+    await user.click(chartColorButton)
+    domTesting.fireEvent.change(chartColorButton, {value: "#ff00ff"})
+
+    // Type into Chart title
+    await user.type(chartTitle, "Apples vs. Oranges")
+
+    // Type into the x and y value fields
+    await user.type(xLabel, "Apples")
+    await user.type(yLabel, "Oranges")
+
+    // Type into the most recent set of input fields, then click the plus button.
+    await user.type(xValue[0], "1")
+    await user.type(yValue[0], "2")
+
+    await user.click(plusButton)
+
+    // Refresh xValue and yValue to include the new field that was created by the + button
+    xValue = domTesting.getAllByLabelText(document, "X")
+    yValue = domTesting.getAllByLabelText(document, "Y")
+
+    // Repeat a couple more times
+    await user.type(xValue[1], "3")
+    await user.type(yValue[1], "4")
+
+    await user.click(plusButton)
+
+    xValue = domTesting.getAllByLabelText(document, "X")
+    yValue = domTesting.getAllByLabelText(document, "Y")
+
+    await user.type(xValue[2], "5")
+    await user.type(yValue[2], "6")
+
+    xValue = domTesting.getAllByLabelText(document, "X")
+    yValue = domTesting.getAllByLabelText(document, "Y")
+
+    // There should be 3 (x,y) fields
+    expect(xValue.length).toBe(3)
+    expect(yValue.length).toBe(3)
+
+    // Click "Generate chart" button
+    await user.click(clearChartButton)
+
+    // Refresh jest-dom data
+    xValue = domTesting.getAllByLabelText(document, "X")
+    yValue = domTesting.getAllByLabelText(document, "Y")
+
+    // There should now be only 1 (x,y) field
+    expect(xValue.length).toBe(1)
+    expect(yValue.length).toBe(1)
+
+    // Every other field should now be empty
+    expect(chartTitle).toBeEmptyDOMElement()
+    expect(xLabel).toBeEmptyDOMElement()
+    expect(yLabel).toBeEmptyDOMElement()
+    expect(xValue[0].value).toBe("")
+    expect(yValue[0].value).toBe("")
+    expect(xLabel).toBeEmptyDOMElement()
+
+    // The chart color should now be reverted back to the default orange
+    expect(chartColorButton.value).toBe("#ff4500")
 })
 // test('Returns a failure when no password is given', async function () {
 //     initDOMFromFiles(
