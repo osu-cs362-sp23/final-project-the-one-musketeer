@@ -21,8 +21,8 @@ function initDOMFromFiles(htmlPath, jsPath) {
 
 test('Loads DOM correctly on startup', async function () {
     initDOMFromFiles(
-        __dirname + "/registerUser.html",
-        __dirname + "/registerUser.js",
+        "../src/line.html",
+        "/registerUser.js",
     )
     expect(document.body.innerHTML).toBe(
         `
