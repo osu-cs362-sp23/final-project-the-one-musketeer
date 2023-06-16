@@ -28,8 +28,8 @@ afterEach(() => {
 
 test('Enter values into X and Y fields, and click the plus button repeatedly', async function () {
     initDOMFromFiles(
-        __dirname + "/../src/line/line.html",
-        __dirname + "/../src/line/line.js",
+        __dirname + "/../src/scatter/scatter.html",
+        __dirname + "/../src/scatter/scatter.js",
     )
 
     var xValue = domTesting.getAllByLabelText(document, "X") // All X input fields
@@ -121,8 +121,8 @@ test('Enter values into X and Y fields, and click the plus button repeatedly', a
 
 test('Give names to X & Y fields but no data, and generate a chart', async function () {
     initDOMFromFiles(
-        __dirname + "/../src/line/line.html",
-        __dirname + "/../src/line/line.js",
+        __dirname + "/../src/scatter/scatter.html",
+        __dirname + "/../src/scatter/scatter.js",
     )
     
     const xLabel = domTesting.getByLabelText(document, "X label") // X label fields
@@ -148,8 +148,8 @@ test('Give names to X & Y fields but no data, and generate a chart', async funct
 
 test('Give data but no names to X & Y fields, and generate a chart', async function () {
     initDOMFromFiles(
-        __dirname + "/../src/line/line.html",
-        __dirname + "/../src/line/line.js",
+        __dirname + "/../src/scatter/scatter.html",
+        __dirname + "/../src/scatter/scatter.js",
     )
     
     var xValue = domTesting.getAllByLabelText(document, "X") // All X input fields
@@ -202,8 +202,8 @@ test('Give data but no names to X & Y fields, and generate a chart', async funct
 
 test('Clicking the Clear Chart Data button clears all data', async function () {
     initDOMFromFiles(
-        __dirname + "/../src/line/line.html",
-        __dirname + "/../src/line/line.js",
+        __dirname + "/../src/scatter/scatter.html",
+        __dirname + "/../src/scatter/scatter.js",
     )
     
     const chartTitle = domTesting.getByLabelText(document, "Chart title") // Chart title field
@@ -282,8 +282,8 @@ test('Clicking the Clear Chart Data button clears all data', async function () {
 
 test('Data correctly sent to the chart generation function', async function () {
     initDOMFromFiles(
-        __dirname + "/../src/line/line.html",
-        __dirname + "/../src/line/line.js",
+        __dirname + "/../src/scatter/scatter.html",
+        __dirname + "/../src/scatter/scatter.js",
     )
     
     const chartTitle = domTesting.getByLabelText(document, "Chart title") // Chart title field
@@ -292,6 +292,7 @@ test('Data correctly sent to the chart generation function', async function () {
     var xValue = domTesting.getAllByLabelText(document, "X") // All X input fields
     var yValue = domTesting.getAllByLabelText(document, "Y") // All Y input fields
     const plusButton = domTesting.getByText(document, "+") // The + button
+    const generateChartButton = domTesting.getByText(document, "Generate chart") // The generate chart button
     const chartColorButton = domTesting.getByLabelText(document, "Chart color") // The chart color button
 
     const user = userEvent.setup()
