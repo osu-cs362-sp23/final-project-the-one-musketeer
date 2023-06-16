@@ -8,6 +8,7 @@ const domTesting = require("@testing-library/dom")
 const userEvent = require("@testing-library/user-event").default
 
 const fs = require("fs")
+const generateChartImg = require("../src/lib/generateChartImg")
 
 function initDOMFromFiles(htmlPath, jsPath) {
     const html = fs.readFileSync(htmlPath, 'utf8')
@@ -199,7 +200,7 @@ test('Give data but no names to X & Y fields, and generate a chart', async funct
     expect(spy).not.toBeCalledWith("Error: No data specified!")
 })
 
-test('Clear chart data button clears all data', async function () {
+test('Clicking the Clear Chart Data button clears all data', async function () {
     initDOMFromFiles(
         __dirname + "/../src/line/line.html",
         __dirname + "/../src/line/line.js",
@@ -278,328 +279,58 @@ test('Clear chart data button clears all data', async function () {
     // The chart color should now be reverted back to the default orange
     expect(chartColorButton.value).toBe("#ff4500")
 })
-// test('Returns a failure when no password is given', async function () {
-//     initDOMFromFiles(
-//         __dirname + "/registerUser.html",
-//         __dirname + "/registerUser.js",
-//     )
-//     const emailInput = domTesting.getByLabelText(document, "Email")
-//     const registerButton = domTesting.getByRole(document, "button")
 
-//     const user = userEvent.setup()
-//     await user.type(emailInput, "hessro@oregonstate.edu") // Valid email
-//     // No password given (left blank)
-//     await user.click(registerButton) // Click the button
-
-//     const errorAlert = domTesting.getByRole(document, "alert")
-//     const errorHeading = domTesting.getByRole(document, "heading")
-//     const errorParagraph = domTesting.getByText(document, "The password you entered is invalid.")
-//     const errorList = domTesting.getByRole(document, "list")
+test('Data correctly sent to the chart generation function', async function () {
+    initDOMFromFiles(
+        __dirname + "/../src/line/line.html",
+        __dirname + "/../src/line/line.js",
+    )
     
-//     expect(errorAlert).not.toBeEmptyDOMElement() // Alert isn't empty?
-//     expect(errorHeading).not.toBeEmptyDOMElement() // <h3> isn't empty?
-//     expect(errorParagraph).not.toBeEmptyDOMElement() // <p> isn't empty?
-//     expect(errorList).not.toBeEmptyDOMElement() // <ul> isn't empty?
-    
-//     expect(errorHeading).toHaveTextContent("❌ Error") // Error heading shows error message
-//     expect(errorList).toHaveTextContent(`Password needs to be at least 8 charactersPassword needs a lower case letterPassword needs an upper case letterPassword needs a numeric digit (0-9)Password needs a symbol (!@#$%^&*)Password contains an invalid character (only letters, numbers, and the symbols !@#$%^&* are allowed)`) // Error list contains this specific text
-// })
+    const chartTitle = domTesting.getByLabelText(document, "Chart title") // Chart title field
+    const xLabel = domTesting.getByLabelText(document, "X label") // X label fields
+    const yLabel = domTesting.getByLabelText(document, "Y label") // Y label fields
+    var xValue = domTesting.getAllByLabelText(document, "X") // All X input fields
+    var yValue = domTesting.getAllByLabelText(document, "Y") // All Y input fields
+    const plusButton = domTesting.getByText(document, "+") // The + button
+    const chartColorButton = domTesting.getByLabelText(document, "Chart color") // The chart color button
 
-// test('Returns a failure when an invalid password with multiple errors is given', async function () {
-//     initDOMFromFiles(
-//         __dirname + "/registerUser.html",
-//         __dirname + "/registerUser.js",
-//     )
-//     const emailInput = domTesting.getByLabelText(document, "Email")
-//     const passwordInput = domTesting.getByLabelText(document, "Password")
-//     const registerButton = domTesting.getByRole(document, "button")
+    const user = userEvent.setup()
 
-//     const user = userEvent.setup()
-//     await user.type(emailInput, "hessro@oregonstate.edu") // Valid email
-//     await user.type(passwordInput, "abc123") // Invalid password
-//     await user.click(registerButton) // Click the button
+    // Change the chart color
+    await user.click(chartColorButton)
+    domTesting.fireEvent.change(chartColorButton, {value: "#ff00ff"})
 
-//     const errorAlert = domTesting.getByRole(document, "alert")
-//     const errorHeading = domTesting.getByRole(document, "heading")
-//     const errorParagraph = domTesting.getByText(document, "The password you entered is invalid.")
-//     const errorList = domTesting.getByRole(document, "list")
-    
-//     expect(errorAlert).not.toBeEmptyDOMElement() // Alert isn't empty?
-//     expect(errorHeading).not.toBeEmptyDOMElement() // <h3> isn't empty?
-//     expect(errorParagraph).not.toBeEmptyDOMElement() // <p> isn't empty?
-//     expect(errorList).not.toBeEmptyDOMElement() // <ul> isn't empty?
-    
-//     expect(errorHeading).toHaveTextContent("❌ Error") // Error heading shows error message
-//     expect(errorList).toHaveTextContent(`Password needs to be at least 8 charactersPassword needs an upper case letterPassword needs a symbol (!@#$%^&*)`) // Error list contains this specific text
-// })
+    // Type into Chart title
+    await user.type(chartTitle, "Apples vs. Oranges")
 
-// test('Returns a failure when an invalid password with less than 8 characters is given', async function () {
-//     initDOMFromFiles(
-//         __dirname + "/registerUser.html",
-//         __dirname + "/registerUser.js",
-//     )
-//     const emailInput = domTesting.getByLabelText(document, "Email")
-//     const passwordInput = domTesting.getByLabelText(document, "Password")
-//     const registerButton = domTesting.getByRole(document, "button")
+    // Type into the x and y value fields
+    await user.type(xLabel, "Apples")
+    await user.type(yLabel, "Oranges")
 
-//     const user = userEvent.setup()
-//     await user.type(emailInput, "hessro@oregonstate.edu") // Valid email
-//     await user.type(passwordInput, "abAB12!") // Invalid password
-//     await user.click(registerButton) // Click the button
+    // Type into the most recent set of input fields, then click the plus button.
+    await user.type(xValue[0], "1")
+    await user.type(yValue[0], "2")
 
-//     const errorAlert = domTesting.getByRole(document, "alert")
-//     const errorHeading = domTesting.getByRole(document, "heading")
-//     const errorParagraph = domTesting.getByText(document, "The password you entered is invalid.")
-//     const errorList = domTesting.getByRole(document, "list")
-    
-//     expect(errorAlert).not.toBeEmptyDOMElement() // Alert isn't empty?
-//     expect(errorHeading).not.toBeEmptyDOMElement() // <h3> isn't empty?
-//     expect(errorParagraph).not.toBeEmptyDOMElement() // <p> isn't empty?
-//     expect(errorList).not.toBeEmptyDOMElement() // <ul> isn't empty?
-    
-//     expect(errorHeading).toHaveTextContent("❌ Error") // Error heading shows error message
-//     expect(errorList).toHaveTextContent(`Password needs to be at least 8 characters`) // Error list contains this specific text
-// })
+    await user.click(plusButton)
 
-// test('Returns a failure when an invalid password with no lowercase letter is given', async function () {
-//     initDOMFromFiles(
-//         __dirname + "/registerUser.html",
-//         __dirname + "/registerUser.js",
-//     )
-//     const emailInput = domTesting.getByLabelText(document, "Email")
-//     const passwordInput = domTesting.getByLabelText(document, "Password")
-//     const registerButton = domTesting.getByRole(document, "button")
+    // Refresh xValue and yValue to include the new field that was created by the + button
+    xValue = domTesting.getAllByLabelText(document, "X")
+    yValue = domTesting.getAllByLabelText(document, "Y")
 
-//     const user = userEvent.setup()
-//     await user.type(emailInput, "hessro@oregonstate.edu") // Valid email
-//     await user.type(passwordInput, "ABC123ABC!!!") // Invalid password
-//     await user.click(registerButton) // Click the button
+    // Repeat a couple more times
+    await user.type(xValue[1], "3")
+    await user.type(yValue[1], "4")
 
-//     const errorAlert = domTesting.getByRole(document, "alert")
-//     const errorHeading = domTesting.getByRole(document, "heading")
-//     const errorParagraph = domTesting.getByText(document, "The password you entered is invalid.")
-//     const errorList = domTesting.getByRole(document, "list")
-    
-//     expect(errorAlert).not.toBeEmptyDOMElement() // Alert isn't empty?
-//     expect(errorHeading).not.toBeEmptyDOMElement() // <h3> isn't empty?
-//     expect(errorParagraph).not.toBeEmptyDOMElement() // <p> isn't empty?
-//     expect(errorList).not.toBeEmptyDOMElement() // <ul> isn't empty?
-    
-//     expect(errorHeading).toHaveTextContent("❌ Error") // Error heading shows error message
-//     expect(errorList).toHaveTextContent(`Password needs a lower case letter`) // Error list contains this specific text
-// })
+    await user.click(plusButton)
 
-// test('Returns a failure when an invalid password with no uppercase letter is given', async function () {
-//     initDOMFromFiles(
-//         __dirname + "/registerUser.html",
-//         __dirname + "/registerUser.js",
-//     )
-//     const emailInput = domTesting.getByLabelText(document, "Email")
-//     const passwordInput = domTesting.getByLabelText(document, "Password")
-//     const registerButton = domTesting.getByRole(document, "button")
+    xValue = domTesting.getAllByLabelText(document, "X")
+    yValue = domTesting.getAllByLabelText(document, "Y")
 
-//     const user = userEvent.setup()
-//     await user.type(emailInput, "hessro@oregonstate.edu") // Valid email
-//     await user.type(passwordInput, "abc123abc!!!") // Invalid password
-//     await user.click(registerButton) // Click the button
+    await user.type(xValue[2], "5")
+    await user.type(yValue[2], "6")
 
-//     const errorAlert = domTesting.getByRole(document, "alert")
-//     const errorHeading = domTesting.getByRole(document, "heading")
-//     const errorParagraph = domTesting.getByText(document, "The password you entered is invalid.")
-//     const errorList = domTesting.getByRole(document, "list")
-    
-//     expect(errorAlert).not.toBeEmptyDOMElement() // Alert isn't empty?
-//     expect(errorHeading).not.toBeEmptyDOMElement() // <h3> isn't empty?
-//     expect(errorParagraph).not.toBeEmptyDOMElement() // <p> isn't empty?
-//     expect(errorList).not.toBeEmptyDOMElement() // <ul> isn't empty?
-    
-//     expect(errorHeading).toHaveTextContent("❌ Error") // Error heading shows error message
-//     expect(errorList).toHaveTextContent(`Password needs an upper case letter`) // Error list contains this specific text
-// })
+    xValue = domTesting.getAllByLabelText(document, "X")
+    yValue = domTesting.getAllByLabelText(document, "Y")
 
-// test('Returns a failure when an invalid password with no numeric digit is given', async function () {
-//     initDOMFromFiles(
-//         __dirname + "/registerUser.html",
-//         __dirname + "/registerUser.js",
-//     )
-//     const emailInput = domTesting.getByLabelText(document, "Email")
-//     const passwordInput = domTesting.getByLabelText(document, "Password")
-//     const registerButton = domTesting.getByRole(document, "button")
-
-//     const user = userEvent.setup()
-//     await user.type(emailInput, "hessro@oregonstate.edu") // Valid email
-//     await user.type(passwordInput, "abc!!!abc!!!") // Invalid password
-//     await user.click(registerButton) // Click the button
-
-//     const errorAlert = domTesting.getByRole(document, "alert")
-//     const errorHeading = domTesting.getByRole(document, "heading")
-//     const errorParagraph = domTesting.getByText(document, "The password you entered is invalid.")
-//     const errorList = domTesting.getByRole(document, "list")
-    
-//     expect(errorAlert).not.toBeEmptyDOMElement() // Alert isn't empty?
-//     expect(errorHeading).not.toBeEmptyDOMElement() // <h3> isn't empty?
-//     expect(errorParagraph).not.toBeEmptyDOMElement() // <p> isn't empty?
-//     expect(errorList).not.toBeEmptyDOMElement() // <ul> isn't empty?
-    
-//     expect(errorHeading).toHaveTextContent("❌ Error") // Error heading shows error message
-//     expect(errorList).toHaveTextContent(`Password needs a numeric digit (0-9)`) // Error list contains this specific text
-// })
-
-// test('Returns a failure when an invalid password with no symbol is given', async function () {
-//     initDOMFromFiles(
-//         __dirname + "/registerUser.html",
-//         __dirname + "/registerUser.js",
-//     )
-//     const emailInput = domTesting.getByLabelText(document, "Email")
-//     const passwordInput = domTesting.getByLabelText(document, "Password")
-//     const registerButton = domTesting.getByRole(document, "button")
-
-//     const user = userEvent.setup()
-//     await user.type(emailInput, "hessro@oregonstate.edu") // Valid email
-//     await user.type(passwordInput, "abc123ABC123") // Invalid password
-//     await user.click(registerButton) // Click the button
-
-//     const errorAlert = domTesting.getByRole(document, "alert")
-//     const errorHeading = domTesting.getByRole(document, "heading")
-//     const errorParagraph = domTesting.getByText(document, "The password you entered is invalid.")
-//     const errorList = domTesting.getByRole(document, "list")
-    
-//     expect(errorAlert).not.toBeEmptyDOMElement() // Alert isn't empty?
-//     expect(errorHeading).not.toBeEmptyDOMElement() // <h3> isn't empty?
-//     expect(errorParagraph).not.toBeEmptyDOMElement() // <p> isn't empty?
-//     expect(errorList).not.toBeEmptyDOMElement() // <ul> isn't empty?
-    
-//     expect(errorHeading).toHaveTextContent("❌ Error") // Error heading shows error message
-//     expect(errorList).toHaveTextContent(`Password needs a symbol (!@#$%^&*)`) // Error list contains this specific text
-// })
-
-// test('Returns a failure when an invalid password with an invalid character is given', async function () {
-//     initDOMFromFiles(
-//         __dirname + "/registerUser.html",
-//         __dirname + "/registerUser.js",
-//     )
-//     const emailInput = domTesting.getByLabelText(document, "Email")
-//     const passwordInput = domTesting.getByLabelText(document, "Password")
-//     const registerButton = domTesting.getByRole(document, "button")
-
-//     const user = userEvent.setup()
-//     await user.type(emailInput, "hessro@oregonstate.edu") // Valid email
-//     await user.type(passwordInput, "abc123ABC!!!(") // Invalid password
-//     await user.click(registerButton) // Click the button
-
-//     const errorAlert = domTesting.getByRole(document, "alert")
-//     const errorHeading = domTesting.getByRole(document, "heading")
-//     const errorParagraph = domTesting.getByText(document, "The password you entered is invalid.")
-//     const errorList = domTesting.getByRole(document, "list")
-    
-//     expect(errorAlert).not.toBeEmptyDOMElement() // Alert isn't empty?
-//     expect(errorHeading).not.toBeEmptyDOMElement() // <h3> isn't empty?
-//     expect(errorParagraph).not.toBeEmptyDOMElement() // <p> isn't empty?
-//     expect(errorList).not.toBeEmptyDOMElement() // <ul> isn't empty?
-    
-//     expect(errorHeading).toHaveTextContent("❌ Error") // Error heading shows error message
-//     expect(errorList).toHaveTextContent(`Password contains an invalid character (only letters, numbers, and the symbols !@#$%^&* are allowed)`) // Error list contains this specific text
-// })
-
-// test('Returns a failure when no email is given', async function () {
-//     initDOMFromFiles(
-//         __dirname + "/registerUser.html",
-//         __dirname + "/registerUser.js",
-//     )
-//     const passwordInput = domTesting.getByLabelText(document, "Password")
-//     const registerButton = domTesting.getByRole(document, "button")
-
-//     const user = userEvent.setup()
-//     // No email given (left blank)
-//     await user.type(passwordInput, "abc123ABC!!!") // Valid password
-//     await user.click(registerButton) // Click the button
-
-//     const errorAlert = domTesting.getByRole(document, "alert")
-//     const errorHeading = domTesting.getByRole(document, "heading")
-//     const errorParagraph = domTesting.getByText(document, "The email address you entered is invalid.")
-    
-//     expect(errorAlert).not.toBeEmptyDOMElement() // Alert isn't empty?
-//     expect(errorHeading).not.toBeEmptyDOMElement() // <h3> isn't empty?
-//     expect(errorParagraph).not.toBeEmptyDOMElement() // <p> isn't empty?
-//     // No list this time
-    
-//     expect(errorHeading).toHaveTextContent("❌ Error") // Error heading shows error message
-// })
-
-// test('Returns a failure when an invalid email is given', async function () {
-//     initDOMFromFiles(
-//         __dirname + "/registerUser.html",
-//         __dirname + "/registerUser.js",
-//     )
-//     const emailInput = domTesting.getByLabelText(document, "Email")
-//     const passwordInput = domTesting.getByLabelText(document, "Password")
-//     const registerButton = domTesting.getByRole(document, "button")
-
-//     const user = userEvent.setup()
-//     await user.type(emailInput, "hessrooregonstateedu") // Valid email
-//     await user.type(passwordInput, "abc123ABC!!!") // Invalid password
-//     await user.click(registerButton) // Click the button
-
-//     const errorAlert = domTesting.getByRole(document, "alert")
-//     const errorHeading = domTesting.getByRole(document, "heading")
-//     const errorParagraph = domTesting.getByText(document, "The email address you entered is invalid.")
-    
-//     expect(errorAlert).not.toBeEmptyDOMElement() // Alert isn't empty?
-//     expect(errorHeading).not.toBeEmptyDOMElement() // <h3> isn't empty?
-//     expect(errorParagraph).not.toBeEmptyDOMElement() // <p> isn't empty?
-//     // No list this time
-    
-//     expect(errorHeading).toHaveTextContent("❌ Error") // Error heading shows error message
-// })
-
-// test('Returns a success when a valid email and password are given', async function () {
-//     initDOMFromFiles(
-//         __dirname + "/registerUser.html",
-//         __dirname + "/registerUser.js",
-//     )
-//     const emailInput = domTesting.getByLabelText(document, "Email")
-//     const passwordInput = domTesting.getByLabelText(document, "Password")
-//     const registerButton = domTesting.getByRole(document, "button")
-
-//     const user = userEvent.setup()
-//     await user.type(emailInput, "hessro@oregonstate.edu") // Valid email
-//     await user.type(passwordInput, "abc123ABC!!!") // Valid password
-//     await user.click(registerButton) // Click the button
-
-//     const successStatus = domTesting.getByRole(document, "status")
-//     const successHeading = domTesting.getByRole(document, "heading")
-//     const successParagraph = domTesting.getByText(document, "You have successfully registered.")
-//     // No list this time
-
-//     expect(successStatus).not.toBeEmptyDOMElement() // Alert isn't empty?
-//     expect(successHeading).not.toBeEmptyDOMElement() // <h3> isn't empty?
-//     expect(successParagraph).not.toBeEmptyDOMElement() // <p> isn't empty?
-    
-//     expect(successHeading).toHaveTextContent("✅ Success") // Error heading shows error message
-// })
-
-// test('Returns a success when a really long valid email and password are given', async function () {
-//     initDOMFromFiles(
-//         __dirname + "/registerUser.html",
-//         __dirname + "/registerUser.js",
-//     )
-//     const emailInput = domTesting.getByLabelText(document, "Email")
-//     const passwordInput = domTesting.getByLabelText(document, "Password")
-//     const registerButton = domTesting.getByRole(document, "button")
-
-//     const user = userEvent.setup()
-//     await user.type(emailInput, "abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ@abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ.net") // Valid email
-//     await user.type(passwordInput, "abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*") // Invalid password
-//     await user.click(registerButton) // Click the button
-
-//     const successStatus = domTesting.getByRole(document, "status")
-//     const successHeading = domTesting.getByRole(document, "heading")
-//     const successParagraph = domTesting.getByText(document, "You have successfully registered.")
-//     // No list this time
-
-//     expect(successStatus).not.toBeEmptyDOMElement() // Alert isn't empty?
-//     expect(successHeading).not.toBeEmptyDOMElement() // <h3> isn't empty?
-//     expect(successParagraph).not.toBeEmptyDOMElement() // <p> isn't empty?
-    
-//     expect(successHeading).toHaveTextContent("✅ Success") // Error heading shows error message
-// })
+    // Spy URL if time allows
+})
